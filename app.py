@@ -13,18 +13,6 @@ def index():
 def hello():
     return render_template("main.html")
 
-@app.route('/signin', methods=['GET', 'POST'])
-def signin():
-    if request.method == 'GET':
-        return render_template("signin.html")
-    else:
-        # 여기 POST로 들어오는 데이터를 받아보자
-        email = request.form['email']
-        pwd = request.form['pwd']
-        print("전달된값:", email, pwd)
-        # 전달된 값을 그대로 db에 저장
-        bdb.insert_data(email, pwd)
-        return '회원가입 데이터(POST)'
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -32,33 +20,43 @@ def login():
         return render_template("login.html")
     else:
         # 여기 POST로 들어오는 데이터를 받아보자
-        email = request.form['email']
+        id = request.form['id']
         pwd = request.form['pwd']
-        print("전달된값:", email, pwd)
+        print("전달된값:", id, pwd)
         # 만약에 이메일과 패스워드 같다면
-        # if email == 'a@a.com' and pwd == '1234':
-        ret = bdb.get_emailpw(email, pwd)
-        print(ret)
+        if id == 'a@a.com' and pwd == '1234':
+        #ret = bdb.get_idpw(id, pwd)
+        #print(ret)
         # 로그인 성공
-        if ret != 'None':
-            session['email'] = email
+        #if ret != 'None':
+            session['id'] = id
             return "로그인 성공"
         # 아니면
         else:
         # 아이디 패스워드 확인
             return "아이디 패스워드 확인"
-    
 
-@app.route('/action_page', methods=['GET', 'POST'])
-def action_page():
+# 로그아웃(session 제거)
+@app.route('/logout')
+def logout():
+    session.pop('uesr', None)
+    return redirect('form')
+    # 로그인 사용자만 접근 가능으로 만들면 
+@app.route('/form') 
+def form(): 
+    if 'user' in session: 
+        return render_template('test.html') 
+    return redirect(('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     if request.method == 'GET':
-        return "데이터를 받아주는 페이지"
+        return "GET으로 전송이다"
     else:
         # 여기 POST로 들어오는 데이터를 받아보자
-        email = request.form['email']
-        pwd = request.form['pwd']
-        print("전달된값:", email, pwd)
-        return '회원가입 데이터(POST)'
+        num = request.form['num']
+        name = request.form['name']
+        return 'POST 이다. 학번은: {} 이름은: {}'.format(num, name)
 
 @app.route('/naver')
 def naver():
@@ -67,21 +65,8 @@ def naver():
     else:
         return redirect('/login')  # 로그인 페이지로 강제 이동
 
-# 로그아웃(session 제거)
-@app.route('/logout')
-def logout():
-    session.pop('email', None)
-    return redirect('/')
 
-@app.route('/gonaver', methods=['GET', 'POST'])
-def gonaver():
-    if request.method == 'GET':
-        return "데이터를 받아주는 페이지"
-    else:
-        # 여기 POST로 들어오는 데이터를 받아보자
-        search = request.form['fname']
-        print("전달된값:", search)
-        return '당신이 검색한 키워드(POST)<br>{}입니다'.format(search)
+
 
 
 if __name__ == '__main__':
